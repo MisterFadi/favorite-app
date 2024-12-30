@@ -1,10 +1,11 @@
-import 'package:favorites_app/models/product.dart';
+import 'package:favorites_app/screens/favorites_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FavoritesScreen extends StatelessWidget {
-  final List<Product> favoriteProducts;
-
-  const FavoritesScreen({super.key, required this.favoriteProducts});
+  const FavoritesScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,19 +13,24 @@ class FavoritesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Favorites'),
       ),
-      body: favoriteProducts.isEmpty
-          ? const Center(
-              child: Text('No favorites yet!'),
-            )
-          : ListView.builder(
-              itemCount: favoriteProducts.length,
-              itemBuilder: (context, index) {
-                final product = favoriteProducts[index];
-                return ListTile(
-                  title: Text(product.name),
+      body: Consumer<FavoritesProvider>(
+        builder: (context, favoritesProvider, child) {
+          final favorites = favoritesProvider.favoriteProducts;
+          return favorites.isEmpty
+              ? const Center(
+                  child: Text('No favorites yet!'),
+                )
+              : ListView.builder(
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) {
+                    final product = favorites[index];
+                    return ListTile(
+                      title: Text(product.name),
+                    );
+                  },
                 );
-              },
-            ),
+        },
+      ),
     );
   }
 }

@@ -1,35 +1,16 @@
-// Statische Implementierung ohne Provider
-import 'package:favorites_app/models/product.dart';
-import 'package:favorites_app/screens/favorites.dart';
+import 'package:favorites_app/screens/favorites_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class ProductsScreen extends StatefulWidget {
+import 'favorites.dart';
+
+class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});
-
-  @override
-  State<ProductsScreen> createState() => _ProductsScreenState();
-}
-
-class _ProductsScreenState extends State<ProductsScreen> {
-  final List<Product> _products = [
-    Product(id: '1', name: 'Banane'),
-    Product(id: '2', name: 'Apfel'),
-    Product(id: '3', name: 'Erdbeere'),
-    Product(id: '4', name: 'Birne'),
-  ];
-
-  void _toggleFavorite(String id) {
-    setState(() {
-      final product = _products.firstWhere((product) => product.id == id);
-      product.isFavorite = !product.isFavorite;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Products'),
+        title: const Text("Products"),
         actions: [
           IconButton(
             icon: const Icon(
@@ -41,38 +22,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FavoritesScreen(
-                    favoriteProducts: _products
-                        .where((product) => product.isFavorite)
-                        .toList(),
-                  ),
+                  builder: (context) => const FavoritesScreen(),
                 ),
               );
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return Card(
-            elevation: 2,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            color: const Color.fromARGB(255, 150, 202, 228),
-            child: ListTile(
-              title: Text(product.name),
-              trailing: IconButton(
-                icon: Icon(
-                  product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: product.isFavorite ? Colors.red : null,
+      body: Consumer<FavoritesProvider>(
+        builder: (context, favoritesProvider, child) {
+          return ListView.builder(
+            itemCount: favoritesProvider.products.length,
+            itemBuilder: (context, index) {
+              final product = favoritesProvider.products[index];
+              return ListTile(
+                title: Text(product.name),
+                trailing: IconButton(
+                  icon: Icon(
+                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: product.isFavorite ? Colors.red : null,
+                  ),
+                  onPressed: () => favoritesProvider.toggleFavorite(product.id),
                 ),
-                onPressed: () => _toggleFavorite(product.id),
-              ),
-            ),
+              );
+            },
           );
         },
       ),
